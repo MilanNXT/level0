@@ -60,22 +60,26 @@ az login --identity
 
 for agent_num in $(seq 1 ${num_agent}); do
   agent_dir="agent-$agent_num"
-  mkdir -p "$agent_dir"
-  cd "$agent_dir"
-    name="${agent_prefix}-${agent_num}" 
-    echo "installing agent $name"
-    tar zxvf ../agent_package.tar.gz
-    chmod -R 777 .
-    echo "extracted"
-    ./bin/installdependencies.sh
-    echo "dependencies installed"
-    sudo -u ${admin_user} ./config.sh --unattended --url "${url}" --auth pat --token "${pat_token}" --pool "${agent_pool}" --agent "${name}" --acceptTeeEula   --replace --work ./_work --runAsService
-    echo "configuration done"
-    ./svc.sh install
-    echo "service installed"
-    ./svc.sh start
-    echo "service started"
-    echo "config done"
-  cd ..
+  if [ -d "$agent_dir" ]; then
+    echo "Agent: ${agent_dir} allredy present, skipping install"
+  else
+    mkdir -p "$agent_dir"
+    cd "$agent_dir"
+      name="${agent_prefix}-${agent_num}" 
+      echo "installing agent $name"
+      tar zxvf ../agent_package.tar.gz
+      chmod -R 777 .
+      echo "extracted"
+      ./bin/installdependencies.sh
+      echo "dependencies installed"
+      sudo -u ${admin_user} ./config.sh --unattended --url "${url}" --auth pat --token "${pat_token}" --pool "${agent_pool}" --agent "${name}" --acceptTeeEula   --replace --work ./_work --runAsService
+      echo "configuration done"
+      ./svc.sh install
+      echo "service installed"
+      ./svc.sh start
+      echo "service started"
+      echo "config done"
+    cd ..
+  fi  
 done
 
